@@ -84,6 +84,7 @@ public class FirstPersonController : MonoBehaviour
 
     private float currentStamina;
     //private Coroutine regeneratingStamina;
+    private string test;
     private Vector3 hitPointNormal;
     private float defaultYPosition;
     private float timer;
