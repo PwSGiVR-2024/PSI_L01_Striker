@@ -83,7 +83,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float staminaTimeIncrement = 0.1f;
 
     private float currentStamina;
-    private Coroutine regeneratingStamina;
+    //private Coroutine regeneratingStamina;
     private Vector3 hitPointNormal;
     private float defaultYPosition;
     private float timer;
