@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using TMPro;
 
 public class Showcase_Camera : MonoBehaviour
@@ -9,16 +9,21 @@ public class Showcase_Camera : MonoBehaviour
     public float maxSpeedMultiplier = 2.0f;
     public float scrollSensitivity = 0.1f;
     public TMP_Text speedMultiplierText;
+    private float rotationX = 0.0f;
+    private Light flashlight;
 
     void Start()
     {
         UpdateSpeedMultiplierText();
+        flashlight = GameObject.FindGameObjectWithTag("Flashlight").GetComponent<Light>();
+        flashlight.enabled = false;
     }
 
     void Update()
     {
         HandleMovement();
         HandleSpeedChange();
+        HandleFlashlightToggle();
     }
 
     void HandleMovement()
@@ -59,11 +64,11 @@ public class Showcase_Camera : MonoBehaviour
 
         transform.position += direction * speed * Time.deltaTime;
 
-        float rotationX = Input.GetAxis("Mouse X");
-        float rotationY = Input.GetAxis("Mouse Y");
+        float rotationY = Input.GetAxis("Mouse X") * 2.0f;
+        rotationX -= Input.GetAxis("Mouse Y") * 2.0f;
+        rotationX = Mathf.Clamp(rotationX, -90.0f, 90.0f);
 
-        transform.Rotate(Vector3.up, rotationX, Space.World);
-        transform.Rotate(Vector3.left, rotationY, Space.Self);
+        transform.localRotation = Quaternion.Euler(rotationX, transform.localEulerAngles.y + rotationY, 0.0f);
     }
 
     void HandleSpeedChange()
@@ -83,6 +88,14 @@ public class Showcase_Camera : MonoBehaviour
         }
     }
 
+    void HandleFlashlightToggle()
+    {
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            flashlight.enabled = !flashlight.enabled;
+        }
+    }
+
     void UpdateSpeedMultiplierText()
     {
         if (speedMultiplierText != null)
@@ -91,5 +104,4 @@ public class Showcase_Camera : MonoBehaviour
         }
     }
 }
-
 

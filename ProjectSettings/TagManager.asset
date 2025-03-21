@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 3
   tags:
   - UI
+  - Flashlight
+  - DLight
   layers:
   - Default
   - TransparentFX
