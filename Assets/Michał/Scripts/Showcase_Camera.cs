@@ -8,7 +8,7 @@ public class Showcase_Camera : MonoBehaviour
     public float minSpeedMultiplier = 0.01f;
     public float maxSpeedMultiplier = 2.0f;
     public float scrollSensitivity = 0.1f;
-    public TMP_Text speedMultiplierText; 
+    public TMP_Text speedMultiplierText;
 
     void Start()
     {
@@ -23,7 +23,13 @@ public class Showcase_Camera : MonoBehaviour
 
     void HandleMovement()
     {
-        float speed = baseSpeed * speedMultiplier;
+        float currentSpeedMultiplier = speedMultiplier;
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+        {
+            currentSpeedMultiplier *= 2.0f;
+        }
+
+        float speed = baseSpeed * currentSpeedMultiplier;
         Vector3 direction = new Vector3();
 
         if (Input.GetKey(KeyCode.W))
@@ -62,10 +68,16 @@ public class Showcase_Camera : MonoBehaviour
 
     void HandleSpeedChange()
     {
+        float currentScrollSensitivity = scrollSensitivity;
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+        {
+            currentScrollSensitivity *= 2.0f;
+        }
+
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         if (scroll != 0.0f)
         {
-            speedMultiplier += scroll * scrollSensitivity;
+            speedMultiplier += scroll * currentScrollSensitivity;
             speedMultiplier = Mathf.Clamp(speedMultiplier, minSpeedMultiplier, maxSpeedMultiplier);
             UpdateSpeedMultiplierText();
         }
@@ -79,4 +91,5 @@ public class Showcase_Camera : MonoBehaviour
         }
     }
 }
+
 
