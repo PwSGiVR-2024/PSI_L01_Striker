@@ -23,11 +23,11 @@ Material:
   m_Name: Oak
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_Parent: {fileID: 2100000, guid: 50a23c3768879ce43bcc545562d804bf, type: 2}
-  m_ModifiedSerializedProperties: 0
+  m_ModifiedSerializedProperties: 4
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap:
@@ -47,9 +47,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _Smoothness: 0.1
     m_Colors:
-    - _BaseColor: {r: 0.39215687, g: 0.39215687, b: 0.39215687, a: 1}
-    - _Color: {r: 0.39215684, g: 0.39215684, b: 0.39215684, a: 1}
+    - _BaseColor: {r: 0.5882353, g: 0.5882353, b: 0.5882353, a: 1}
+    - _Color: {r: 0.5882353, g: 0.5882353, b: 0.5882353, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

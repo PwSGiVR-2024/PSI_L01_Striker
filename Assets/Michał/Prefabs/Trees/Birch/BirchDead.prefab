@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8572620426325299289}
   - component: {fileID: 5844801031802741907}
   m_Layer: 0
-  m_Name: BirchDead_009
+  m_Name: BirchDead
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
