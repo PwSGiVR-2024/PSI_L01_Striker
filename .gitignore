@@ -2,6 +2,40 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
+# — Expo / Node (Striker_Mobile) —
+MobileApp/Striker_Mobile/node_modules/
+MobileApp/Striker_Mobile/.expo/
+MobileApp/Striker_Mobile/dist/
+MobileApp/Striker_Mobile/web-build/
+MobileApp/Striker_Mobile/expo-env.d.ts
+
+# Native creds & build artifacts
+MobileApp/Striker_Mobile/*.orig.*
+MobileApp/Striker_Mobile/*.jks
+MobileApp/Striker_Mobile/*.p8
+MobileApp/Striker_Mobile/*.p12
+MobileApp/Striker_Mobile/*.key
+MobileApp/Striker_Mobile/*.mobileprovision
+
+# Metro cache
+MobileApp/Striker_Mobile/.metro-health-check*
+
+# debug logs
+MobileApp/Striker_Mobile/npm-debug.*
+MobileApp/Striker_Mobile/yarn-debug.*
+MobileApp/Striker_Mobile/yarn-error.*
+
+# macOS stuff
+MobileApp/Striker_Mobile/.DS_Store
+MobileApp/Striker_Mobile/*.pem
+
+# env files
+MobileApp/Striker_Mobile/.env*.local
+
+# TS build info (if any slipped in)
+MobileApp/Striker_Mobile/*.tsbuildinfo
+
+
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
