@@ -39,9 +39,9 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private KeyCode crouchKey = KeyCode.LeftControl;
 
     [Header("Movement Parameters")]
-    [SerializeField] private float walkSpeed = 2.0f;
-    [SerializeField] private float sprintSpeed = 4.0f;
-    [SerializeField] private float crouchSpeed = 1.0f;
+    [SerializeField] private float walkSpeed = 4.0f;
+    [SerializeField] private float sprintSpeed = 6.0f;
+    [SerializeField] private float crouchSpeed = 2.0f;
     [SerializeField] private float slopeSpeed = 6.0f;
 
     [Header("Look Parameters")]
@@ -258,7 +258,7 @@ public class FirstPersonController : MonoBehaviour
             StopCoroutine(regeneratingHealth);
         }
 
-        // Tutaj co siê dziejê ze œmierci¹
+        // Tutaj co siê dziejê ze œmierci¹ po œmierci
     }
 
     private void ApplyFinalMovements()
