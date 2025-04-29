@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, StatusBar,
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GlobalStyles } from '../Styles/GlobalStyles';
+import BluetoothDevice from '../Components/BluetoothDevice';
 
 
 function BleConnectionScreen({ navigation }) {
@@ -10,11 +11,17 @@ function BleConnectionScreen({ navigation }) {
 
   const [blePermissionsGranted, setBlePermissionsGranted] = useState(true);
   const [searchingForDevices, setSearchingForDevices] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState(null);
+  const [avbDevicesList, setAvbDevicesList] = useState([{name: "device 1", id: 1}, {name: "device 2", id: 2}, {name: "device 3", id: 3}])
 
   const searchForDevices = () => {
     setSearchingForDevices(true);
 
 
+  };
+
+  const selectDevice = (device) => {
+    setSelectedDevice(device);
   };
 
   return (
@@ -36,16 +43,26 @@ function BleConnectionScreen({ navigation }) {
             </>
         ):(
             <>
-                <View style={[styles.logoContainer, GlobalStyles.center]}>    
+                <ScrollView style={[styles.logoContainer, {marginTop: 10}]} contentContainerStyle={GlobalStyles.center}>
+                    {avbDevicesList.map((device) => (
+                        <BluetoothDevice key={device.id} deviceData={device} isSelected={selectedDevice?.id === device.id} onSelect={() => selectDevice(device)}/>
+                    ))}
+
                     {searchingForDevices && (
                         <ActivityIndicator size="large" color="#FFF" />
                     )}
-                </View>
+                </ScrollView>
                 
                 <View style={[styles.buttonContainer]}>
-                    <TouchableOpacity style={styles.elevatedBtn} onPress={() => searchForDevices()} activeOpacity={0.8}>
-                        <Text style={styles.buttonText}>SEARCH FOR DEVICES</Text>
-                    </TouchableOpacity>
+                    {selectedDevice ? (
+                        <TouchableOpacity style={styles.elevatedBtn} onPress={() => searchForDevices()} activeOpacity={0.8}>
+                            <Text style={styles.buttonText}>CONNECT</Text>
+                        </TouchableOpacity>
+                    ):(
+                        <TouchableOpacity style={styles.elevatedBtn} onPress={() => searchForDevices()} activeOpacity={0.8}>
+                            <Text style={styles.buttonText}>SEARCH FOR DEVICES</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </>
         )}
@@ -62,6 +79,7 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     flex: 0.85,
+    width: '100%', 
     textAlign: 'center',
   },
   errorText: {
