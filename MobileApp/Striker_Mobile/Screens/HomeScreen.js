@@ -4,12 +4,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GlobalStyles } from '../Styles/GlobalStyles';
 
-const beginSetUp = () => {
-
-};
-
 function HomeScreen({ navigation }) {
   const insets = useSafeAreaInsets();
+
+  const beginSetUp = () => {
+    navigation.navigate('BleConnection');
+  };
 
   return (
     <SafeAreaView style={[styles.container, GlobalStyles.center]} edges={['left', 'right', 'bottom']}>
@@ -21,7 +21,7 @@ function HomeScreen({ navigation }) {
       </View>
 
        <View style={[styles.buttonContainer]}>
-            <TouchableOpacity style={styles.elevatedBtn} onPress={beginSetUp} activeOpacity={0.8}>
+            <TouchableOpacity style={styles.elevatedBtn} onPress={() => beginSetUp()} activeOpacity={0.8}>
                 <Text style={styles.buttonText}>BEGIN SET UP</Text>
             </TouchableOpacity>
        </View>

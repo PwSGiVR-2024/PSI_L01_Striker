@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import HomeScreen from './Screens/HomeScreen';
+import BleConnectionScreen from './Screens/BleConnectionScreen';
 
 import * as Font from 'expo-font';
 
@@ -47,6 +48,7 @@ function App() {
         }}
       >
         <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="BleConnection" component={BleConnectionScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
