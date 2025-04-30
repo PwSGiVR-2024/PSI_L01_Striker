@@ -1,18 +1,45 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, StatusBar, Platform, ScrollView } from 'react-native';
+import { View, Linking, Text, TouchableOpacity, StyleSheet, ActivityIndicator, StatusBar, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GlobalStyles } from '../Styles/GlobalStyles';
 import BluetoothDevice from '../Components/BluetoothDevice';
+import { checkAndRequestBluetoothPermissionAndroid } from '../Helpers/BluetoothPermissionHelper.js';
+import { checkAndRequestLocationPermission } from '../Helpers/LocationPermissionHelper.js';
 
 
 function BleConnectionScreen({ navigation }) {
   const insets = useSafeAreaInsets();
 
-  const [blePermissionsGranted, setBlePermissionsGranted] = useState(true);
+  const [blePermissionsGranted, setBlePermissionsGranted] = useState(false);
   const [searchingForDevices, setSearchingForDevices] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [avbDevicesList, setAvbDevicesList] = useState([{name: "device 1", id: 1}, {name: "device 2", id: 2}, {name: "device 3", id: 3}])
+
+  useEffect(() => {
+    checkAndRequestPermissions();
+  }, []);
+
+  const checkAndRequestPermissions = async () => {
+    if (Platform.OS === 'android') {
+      const bleGranted = await checkAndRequestBluetoothPermissionAndroid();
+      const locationGranted = await checkAndRequestLocationPermission();
+      if(bleGranted && locationGranted){
+        setBlePermissionsGranted(true);
+        return;
+      }
+      setBlePermissionsGranted(false);
+      return;
+    }
+
+    setBlePermissionsGranted(false);
+  }
+
+  const redirectToSettings = () => {
+    if (Platform.OS === 'android') {
+      Linking.openSettings();
+    }
+  }
 
   const searchForDevices = () => {
     setSearchingForDevices(true);
@@ -36,7 +63,7 @@ function BleConnectionScreen({ navigation }) {
                 </View>
                 
                 <View style={[styles.buttonContainer]}>
-                    <TouchableOpacity style={styles.elevatedBtn} activeOpacity={0.8}>
+                    <TouchableOpacity onPress={redirectToSettings} style={styles.elevatedBtn} activeOpacity={0.8}>
                         <Text style={styles.buttonText}>I UNDERSTAND</Text>
                     </TouchableOpacity>
                 </View>

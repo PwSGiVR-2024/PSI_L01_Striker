@@ -16,6 +16,7 @@ export default {
     },
     plugins: [
         'expo-dev-client',
+        'expo-location',
     ],
     assetBundlePatterns: [
       "**/*"
