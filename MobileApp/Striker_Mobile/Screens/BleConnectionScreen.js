@@ -4,20 +4,29 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GlobalStyles } from '../Styles/GlobalStyles';
 import BluetoothDevice from '../Components/BluetoothDevice';
+import { BleManager } from 'react-native-ble-plx';
+import BLEService from '../Services/BLEService';
 import { checkAndRequestBluetoothPermissionAndroid } from '../Helpers/BluetoothPermissionHelper.js';
 import { checkAndRequestLocationPermission } from '../Helpers/LocationPermissionHelper.js';
-
 
 function BleConnectionScreen({ navigation }) {
   const insets = useSafeAreaInsets();
 
   const [blePermissionsGranted, setBlePermissionsGranted] = useState(false);
   const [searchingForDevices, setSearchingForDevices] = useState(false);
+  const [searchPerformed, setSearchPerformed] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
-  const [avbDevicesList, setAvbDevicesList] = useState([{name: "device 1", id: 1}, {name: "device 2", id: 2}, {name: "device 3", id: 3}])
+  const [avbDevicesList, setAvbDevicesList] = useState([]);
+  const [noHrError, setNoHrError] = useState(false);
+
+  const bleManagerRef = useRef(new BleManager());
+  const discovered = useRef(new Map());
 
   useEffect(() => {
     checkAndRequestPermissions();
+    return () => {
+      bleManagerRef.current.destroy();
+    };
   }, []);
 
   const checkAndRequestPermissions = async () => {
@@ -42,14 +51,63 @@ function BleConnectionScreen({ navigation }) {
   }
 
   const searchForDevices = () => {
+    discovered.current.clear();
+    setAvbDevicesList([]);
+    setSearchPerformed(false);
     setSearchingForDevices(true);
 
+    bleManagerRef.current.startDeviceScan(
+      null,
+      { allowDuplicates: false },
+      (error, device) => {
+        if (error) {
+          bleManagerRef.current.stopDeviceScan();
+          setSearchingForDevices(false);
+          return;
+        }
+        const name = device?.name || device?.localName;
+        if (device && name && !discovered.current.has(device.id)) {
+          discovered.current.set(device.id, { ...device, name });
+          setAvbDevicesList(Array.from(discovered.current.values()));
+        }
+      }
+    );
 
+    setTimeout(() => {
+      bleManagerRef.current.stopDeviceScan();
+      setSearchingForDevices(false);
+      setSearchPerformed(true);
+    }, 10000);
+  };
+
+  const stopScan = () => {
+    bleManagerRef.current.stopDeviceScan();
+    setSearchingForDevices(false);
+    setSearchPerformed(true);
   };
 
   const selectDevice = (device) => {
     setSelectedDevice(device);
   };
+
+  const connectToDevice = async () => {
+    if (!selectedDevice) return;
+  
+    setNoHrError(false);
+    setSearchingForDevices(true);
+  
+    try {
+      await BLEService.connectAndSubscribe(selectedDevice.id);
+      navigation.navigate('UnityConnectionScreen');
+
+    } catch (error) {
+      setNoHrError(true);
+    } finally {
+      setSearchingForDevices(false);
+    }
+  };
+  
+
 
   return (
     <SafeAreaView style={[styles.container, GlobalStyles.center]} edges={['left', 'right', 'bottom']}>
@@ -71,18 +129,38 @@ function BleConnectionScreen({ navigation }) {
         ):(
             <>
                 <ScrollView style={[styles.logoContainer, {marginTop: 10}]} contentContainerStyle={GlobalStyles.center}>
-                    {avbDevicesList.map((device) => (
-                        <BluetoothDevice key={device.id} deviceData={device} isSelected={selectedDevice?.id === device.id} onSelect={() => selectDevice(device)}/>
-                    ))}
+                    {noHrError ? (
+                      <>
+                          <View style={[GlobalStyles.flex, GlobalStyles.center]}>
+                            <Text style={[styles.errorText, {marginTop: 300}]}>Choosen device does not have active Heart-Rate system. Choose diffrent one.</Text>
+                          </View>
+                      </>
+                    ):(
+                      <>
+                        {searchPerformed && avbDevicesList.length === 0 || searchPerformed && avbDevicesList === null ? (
+                          <>
+                            <View style={[GlobalStyles.flex, GlobalStyles.center]}>
+                              <Text style={[styles.errorText, {marginTop: 300}]}>Couldn't find any devices. Check if ur desired device has a bluetooth active and if its ready to pair.</Text>
+                            </View>
+                          </>
+                        ):(
+                          <>
+                            {avbDevicesList.map((device) => (
+                              <BluetoothDevice key={device.id} deviceData={device} isSelected={selectedDevice?.id === device.id} onSelect={() => selectDevice(device)}/>
+                            ))}
+                          </>
+                        )}
 
-                    {searchingForDevices && (
-                        <ActivityIndicator size="large" color="#FFF" />
-                    )}
+                        {searchingForDevices && (
+                            <ActivityIndicator size="large" color="#FFF" />
+                        )}
+                      </>
+                    )}                  
                 </ScrollView>
                 
                 <View style={[styles.buttonContainer]}>
                     {selectedDevice ? (
-                        <TouchableOpacity style={styles.elevatedBtn} onPress={() => searchForDevices()} activeOpacity={0.8}>
+                        <TouchableOpacity style={styles.elevatedBtn} onPress={() => connectToDevice()} activeOpacity={0.8}>
                             <Text style={styles.buttonText}>CONNECT</Text>
                         </TouchableOpacity>
                     ):(
