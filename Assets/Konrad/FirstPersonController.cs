@@ -33,6 +33,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private bool WillSlideOnSlopes = true;
     [SerializeField] private bool UseStamina = true;
     [SerializeField] private bool canZoom = true;
+    [SerializeField] private bool useFootsteps = true;
 
     [Header("Controls")]
     [SerializeField] private KeyCode sprintKey = KeyCode.LeftShift;
@@ -89,6 +90,15 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float zoomFOV = 30.0f;
     private float defaultFOV;
     private Coroutine zoomRoutine;
+
+    [Header("Footstep Parameters")]
+    [SerializeField] private float baseStepSpeed = 0.5f;
+    [SerializeField] private float crouchStepMultiplayer = 1.5f;
+    [SerializeField] private float sprintStepMultiplayer = 0.6f;
+    [SerializeField] private AudioSource footstepAudioSource = default;
+    [SerializeField] private AudioClip[] terrainClips = default;
+    private float footstepTimer = 0;
+    private float getCurrentOffset => IsCrouching ? baseStepSpeed * crouchStepMultiplayer : IsSprinting ? baseStepSpeed * sprintStepMultiplayer : baseStepSpeed;
 
     private CharacterController characterController;
     private Vector3 moveDirection;
@@ -155,6 +165,7 @@ public class FirstPersonController : MonoBehaviour
             if (CanUseHeadbob) HandleHeadbob();
             if (UseStamina) HandleStamina();
             if (canZoom) HandleZoom();
+            if (useFootsteps) HandleFootsteps();
 
             ApplyFinalMovements();
         }
@@ -234,6 +245,31 @@ public class FirstPersonController : MonoBehaviour
             zoomRoutine = StartCoroutine(ToggleZoom(false));
         }
     }
+
+    private void HandleFootsteps()
+    {
+        if (!characterController.isGrounded) return;
+        if (currentInput == Vector2.zero) return;
+
+        footstepTimer -= Time.deltaTime;
+
+        if (footstepTimer <= 0)
+        {
+            if (Physics.Raycast(characterController.transform.position, Vector3.down, out RaycastHit hit, 5))
+            {
+                switch (hit.collider.tag)
+                {
+                   case "Terrain":
+                        footstepAudioSource.PlayOneShot(terrainClips[UnityEngine.Random.Range(0, terrainClips.Length)]);
+                        break;
+    
+                }
+            }
+
+            footstepTimer = getCurrentOffset;
+        }
+    }
+
 
     private void HandleStamina()
     {
