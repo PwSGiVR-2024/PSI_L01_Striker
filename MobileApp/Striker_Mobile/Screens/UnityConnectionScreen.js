@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
 import ConnectingLottie from '../assets/lotties/connecting.json';
+import WebSocketService from '../Services/WebSocketService';
 
 
 function UnityConnectionScreen({ navigation }) {
@@ -25,14 +26,26 @@ function UnityConnectionScreen({ navigation }) {
   }, []);
 
   const setIpAddress = () => {
-    console.log("Ip adr setted");
-    //validate
+    if (!isValidIp(ipAddr)) {
+      setIpAddr(null);
+      return;
+    }
+
     setIpSetted(true);
+  };
+
+  const isValidIp = (ip) => {
+    const regex = /^(25[0-5]|2[0-4]\d|[01]?\d?\d)(\.(25[0-5]|2[0-4]\d|[01]?\d?\d)){3}$/;
+    return regex.test(ip);
   };
 
   const connectToClient = () => {
     setIsConnecting(true);
-    
+    WebSocketService.setServer(ipAddr, 7373);
+    setIsConnected(true);
+    setIsConnecting(false);
+
+    navigation.navigate('FinalScreen');
   };
 
   return (
@@ -93,8 +106,8 @@ function UnityConnectionScreen({ navigation }) {
             </>
         ):(
             <>
-                <View style={[GlobalStyles.flex, {width: '100%'}]}>
-                  <Text style={[styles.ipText, {marginTop: 50}]}>CONNECTED</Text>
+                <View style={[GlobalStyles.flex, {width: '100%'}, GlobalStyles.center]}>
+                  <Text style={[styles.ipText]}>CONNECTED</Text>
                 </View>
             </>
         )}
