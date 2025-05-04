@@ -8,17 +8,20 @@ using System.Collections;
 
 public class ConnectionMenuManager : MonoBehaviour
 {
+    public GameObject startPanel;
     public GameObject appPanel;
     public GameObject ipPanel;
     public GameObject connectedPanel;
 
+    public Text startText;
+    public Text startTextShadow;
     public Text ipAddrText;
 
     private bool _wasConnected = false;
 
     void Start()
     {
-
+        StartCoroutine(DelayAppConnection());
     }
 
     void Update()
@@ -73,5 +76,30 @@ public class ConnectionMenuManager : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         SceneManager.LoadScene(nextSceene);
+    }
+
+    private IEnumerator DelayAppConnection()
+    {
+        yield return new WaitForSeconds(3f - 1f);
+
+        Color original = startText.color;
+        Color originalShadow = startTextShadow.color;
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            float alpha = Mathf.Lerp(1f, 0f, t / 1f);
+            startText.color = new Color(original.r, original.g, original.b, alpha);
+            startTextShadow.color = new Color(originalShadow.r, originalShadow.g, originalShadow.b, alpha);
+
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        startText.color = new Color(original.r, original.g, original.b, 0f);
+        startTextShadow.color = new Color(originalShadow.r, originalShadow.g, originalShadow.b, 0f);
+
+        startPanel.SetActive(false);
+        appPanel.SetActive(true);
     }
 }
