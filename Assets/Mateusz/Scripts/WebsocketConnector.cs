@@ -69,7 +69,6 @@ public class WebsocketConnector : MonoBehaviour
             hr = _incoming.Dequeue();
         }
 
-        Debug.Log("HR ---> " + hr.heartRate);
         SanityManager.instance.PushHeartRate(hr.heartRate);
     }
 
