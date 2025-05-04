@@ -1,27 +1,64 @@
 using System;
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
 public class FirstPersonController : MonoBehaviour
 {
+    // Movement flags and state
     public bool CanMove { get; private set; } = true;
     private bool IsCrouching;
     private bool DuringCrouchAnimation;
+    private bool wasSprinting = false;
 
+    // Rotation and camera
+    private float rotationX;
+    private float defaultYPosition;
+    private float defaultFOV;
+    private Camera playerCamera;
+
+    // Health and stamina
+    private float currentHealth;
+    private float currentStamina;
+    private Coroutine regeneratingHealth;
+    private Coroutine regeneratingStamina;
+
+    // Movement calculation
+    private Vector3 moveDirection;
+    private Vector2 currentInput;
+    private Vector3 hitPointNormal;
+
+    // Timers
+    private float timer;
+    private float footstepTimer;
+
+    // Zoom coroutine
+    private Coroutine zoomRoutine;
+
+    // Character controller
+    private CharacterController characterController;
+
+    // Event actions
+    public static Action<float> OnTakeDamage;
+    public static Action<float> OnDamage;
+    public static Action<float> OnHeal;
+    public static Action<float> OnStaminaChange;
+
+    // Input checks
     private bool IsSprinting => CanSprint && Input.GetKey(sprintKey);
-    private bool ShouldJump => Input.GetKeyDown(jumpKey) && characterController.isGrounded;
-    private bool ShouldCrouch => Input.GetKeyDown(crouchKey) && !DuringCrouchAnimation && characterController.isGrounded;
-    private bool IsSliding
+    private bool ShouldJump => CanJump && Input.GetKeyDown(jumpKey) && characterController.isGrounded;
+    private bool ShouldCrouch => CanCrouch && Input.GetKeyDown(crouchKey) && !DuringCrouchAnimation && characterController.isGrounded;
+    private bool IsSliding => characterController.isGrounded
+                              && Physics.Raycast(transform.position, Vector3.down, out RaycastHit slopeHit, 2f)
+                              && Vector3.Angle((hitPointNormal = slopeHit.normal), Vector3.up) > characterController.slopeLimit;
+
+    // Footstep timing multiplier based on state
+    private float CurrentOffset
     {
         get
         {
-            if (characterController.isGrounded && Physics.Raycast(transform.position, Vector3.down, out RaycastHit slopeHit, 2f))
-            {
-                hitPointNormal = slopeHit.normal;
-                return Vector3.Angle(hitPointNormal, Vector3.up) > characterController.slopeLimit;
-            }
-
-            return false;
+            if (IsCrouching) return baseStepSpeed * crouchStepMultiplier;
+            if (IsSprinting) return baseStepSpeed * sprintStepMultiplier;
+            return baseStepSpeed;
         }
     }
 
@@ -61,7 +98,7 @@ public class FirstPersonController : MonoBehaviour
 
     [Header("Stamina Parameters")]
     [SerializeField] private float maxStamina = 100.0f;
-    [SerializeField] private float staminaUseMultiplayer = 10.0f;
+    [SerializeField] private float staminaUseMultiplier = 10.0f;
     [SerializeField] private float timeBeforeStaminaRegenStarts = 2.0f;
     [SerializeField] private float staminaValueIncrement = 1.0f;
     [SerializeField] private float staminaTimeIncrement = 0.02f;
@@ -88,100 +125,66 @@ public class FirstPersonController : MonoBehaviour
     [Header("Zoom Parameters")]
     [SerializeField] private float timeToZoom = 0.3f;
     [SerializeField] private float zoomFOV = 30.0f;
-    private float defaultFOV;
-    private Coroutine zoomRoutine;
+
+    [Header("Audio Effects Parameters")]
+    [SerializeField] private AudioClip breathingClip;
+    [SerializeField] private AudioSource breathingAudioSource;
+    [SerializeField] private float breathingDelay = 0.5f;
 
     [Header("Footstep Parameters")]
     [SerializeField] private float baseStepSpeed = 0.5f;
-    [SerializeField] private float crouchStepMultiplayer = 1.5f;
-    [SerializeField] private float sprintStepMultiplayer = 0.6f;
-    [SerializeField] private AudioSource footstepAudioSource = default;
-    [SerializeField] private AudioClip[] terrainClips = default;
-    private float footstepTimer = 0;
-    private float getCurrentOffset => IsCrouching ? baseStepSpeed * crouchStepMultiplayer : IsSprinting ? baseStepSpeed * sprintStepMultiplayer : baseStepSpeed;
+    [SerializeField] private float crouchStepMultiplier = 1.5f;
+    [SerializeField] private float sprintStepMultiplier = 0.6f;
+    [SerializeField] private AudioSource footstepAudioSource;
+    [SerializeField] private AudioClip[] terrainClips;
 
-    private CharacterController characterController;
-    private Vector3 moveDirection;
-    private Vector2 currentInput;
-    private float rotationX;
-
-    private Camera playerCamera;
-    private float defaultYPosition;
-    private float timer;
-
-    private Vector3 hitPointNormal;
-
-    private float currentHealth;
-    private Coroutine regeneratingHealth;
-    public static Action<float> OnTakeDamage;
-    public static Action<float> OnDamage;
-    public static Action<float> OnHeal;
-
-    private float currentStamina;
-    private Coroutine regeneratingStamina;
-    public static Action<float> OnStaminaChange;
-
-    public float GetCurrentStamina()
-    {
-        return currentStamina;
-    }
-
-    public float GetMaxStamina()
-    {
-        return maxStamina;
-    }
-
-    private void OnEnable()
-    {
-        OnTakeDamage += applyDamage;
-    }
-
-    private void OnDisable()
-    {
-        OnTakeDamage -= applyDamage;
-    }
+    private void OnEnable() => OnTakeDamage += applyDamage;
+    private void OnDisable() => OnTakeDamage -= applyDamage;
 
     private void Awake()
     {
         playerCamera = GetComponentInChildren<Camera>();
         characterController = GetComponent<CharacterController>();
+
         defaultYPosition = playerCamera.transform.localPosition.y;
         defaultFOV = playerCamera.fieldOfView;
+
         currentHealth = maxHealth;
         currentStamina = maxStamina;
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
     private void Update()
     {
-        if (CanMove)
-        {
-            HandleMovementInput();
-            HandleMouseLook();
+        if (!CanMove) return;
 
-            if (CanJump) HandleJump();
-            if (CanCrouch) HandleCrouch();
-            if (CanUseHeadbob) HandleHeadbob();
-            if (UseStamina) HandleStamina();
-            if (canZoom) HandleZoom();
-            if (useFootsteps) HandleFootsteps();
+        HandleMovementInput();
+        HandleMouseLook();
+        if (CanJump) HandleJump();
+        if (CanCrouch) HandleCrouch();
+        if (CanUseHeadbob) HandleHeadbob();
+        if (UseStamina) HandleStamina();
+        if (canZoom) HandleZoom();
+        if (useFootsteps) HandleFootsteps();
 
-            ApplyFinalMovements();
-        }
+        if (wasSprinting && !IsSprinting)
+            StartCoroutine(PlayBreathing());
+        else if (!wasSprinting && IsSprinting && breathingAudioSource != null)
+            breathingAudioSource.Stop();
+
+        wasSprinting = IsSprinting;
+        ApplyFinalMovements();
     }
 
     private void HandleMovementInput()
     {
-        currentInput = new Vector2
-        (
-            (IsCrouching ? crouchSpeed : IsSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Vertical"),
-            (IsCrouching ? crouchSpeed : IsSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Horizontal")
-        );
+        float speed = IsCrouching ? crouchSpeed : IsSprinting ? sprintSpeed : walkSpeed;
+        currentInput = new Vector2(speed * Input.GetAxis("Vertical"), speed * Input.GetAxis("Horizontal"));
 
         float moveDirectionY = moveDirection.y;
-        moveDirection = (transform.TransformDirection(Vector3.forward) * currentInput.x) +
-                        (transform.TransformDirection(Vector3.right) * currentInput.y);
+        moveDirection = transform.forward * currentInput.x + transform.right * currentInput.y;
         moveDirection.y = moveDirectionY;
     }
 
@@ -206,142 +209,96 @@ public class FirstPersonController : MonoBehaviour
 
     private void HandleHeadbob()
     {
-        if (!characterController.isGrounded) return;
+        if (!characterController.isGrounded || currentInput == Vector2.zero)
+            return;
 
-        if (Mathf.Abs(moveDirection.x) > 0.1f || Mathf.Abs(moveDirection.z) > 0.1f)
-        {
-            timer += Time.deltaTime * (IsCrouching ? crouchBobSpeed : IsSprinting ? sprintBobSpeed : walkBobSpeed);
+        float bobSpeed = IsCrouching ? crouchBobSpeed : IsSprinting ? sprintBobSpeed : walkBobSpeed;
+        float bobAmount = IsCrouching ? crouchBobAmount : IsSprinting ? sprintBobAmount : walkBobAmount;
 
-            playerCamera.transform.localPosition = new Vector3
-            (
-                playerCamera.transform.localPosition.x,
-                defaultYPosition + Mathf.Sin(timer) * (IsCrouching ? crouchBobAmount : IsSprinting ? sprintBobAmount : walkBobAmount),
-                playerCamera.transform.localPosition.z
-            );
-        }
+        timer += Time.deltaTime * bobSpeed;
+        float newY = defaultYPosition + Mathf.Sin(timer) * bobAmount;
+        playerCamera.transform.localPosition = new Vector3(
+            playerCamera.transform.localPosition.x,
+            newY,
+            playerCamera.transform.localPosition.z);
     }
 
     private void HandleZoom()
     {
         if (Input.GetKeyDown(zoomKey))
         {
-            if (zoomRoutine != null)
-            {
-                StopCoroutine(zoomRoutine);
-                zoomRoutine = null;
-            }
-
+            if (zoomRoutine != null) StopCoroutine(zoomRoutine);
             zoomRoutine = StartCoroutine(ToggleZoom(true));
         }
-
-        if (Input.GetKeyUp(zoomKey))
+        else if (Input.GetKeyUp(zoomKey))
         {
-            if (zoomRoutine != null)
-            {
-                StopCoroutine(zoomRoutine);
-                zoomRoutine = null;
-            }
-
+            if (zoomRoutine != null) StopCoroutine(zoomRoutine);
             zoomRoutine = StartCoroutine(ToggleZoom(false));
         }
     }
 
     private void HandleFootsteps()
     {
-        if (!characterController.isGrounded) return;
-        if (currentInput == Vector2.zero) return;
+        if (!characterController.isGrounded || currentInput == Vector2.zero) return;
 
         footstepTimer -= Time.deltaTime;
+        if (footstepTimer > 0) return;
 
-        if (footstepTimer <= 0)
+        if (Physics.Raycast(characterController.transform.position, Vector3.down, out RaycastHit hit, 5f)
+            && hit.collider.CompareTag("Terrain"))
         {
-            if (Physics.Raycast(characterController.transform.position, Vector3.down, out RaycastHit hit, 5))
-            {
-                switch (hit.collider.tag)
-                {
-                   case "Terrain":
-                        footstepAudioSource.PlayOneShot(terrainClips[UnityEngine.Random.Range(0, terrainClips.Length)]);
-                        break;
-    
-                }
-            }
-
-            footstepTimer = getCurrentOffset;
+            footstepAudioSource.PlayOneShot(
+                terrainClips[UnityEngine.Random.Range(0, terrainClips.Length)]);
         }
+        footstepTimer = CurrentOffset;
     }
-
 
     private void HandleStamina()
     {
         if (IsSprinting && currentInput != Vector2.zero)
         {
-            if (regeneratingStamina != null)
-            {
-                StopCoroutine(regeneratingStamina);
-                regeneratingStamina = null;
-            }
-
-            currentStamina -= staminaUseMultiplayer * Time.deltaTime;
-
-            if (currentStamina < 0)
-            {
-                currentStamina = 0;
-            }
-
+            if (regeneratingStamina != null) StopCoroutine(regeneratingStamina);
+            currentStamina = Mathf.Max(0, currentStamina - staminaUseMultiplier * Time.deltaTime);
             OnStaminaChange?.Invoke(currentStamina);
-
-            if (currentStamina <= 0)
-            {
-                CanSprint = false;
-            }
+            if (currentStamina <= 0) CanSprint = false;
         }
-
-        if (!IsSprinting && currentStamina < maxStamina && regeneratingStamina == null)
+        else if (currentStamina < maxStamina && regeneratingStamina == null)
         {
             regeneratingStamina = StartCoroutine(RegenerateStamina());
         }
     }
 
-    private void applyDamage(float damage)
-    {
-        currentHealth -= damage;
-
-        OnDamage?.Invoke(currentHealth);
-
-        if (currentHealth <= 0)
-        {
-            KillPlayer();
-        }
-        else if (regeneratingHealth != null)
-        {
-            StopCoroutine(regeneratingHealth);
-        }
-
-        regeneratingHealth = StartCoroutine(RegenerateHealth());
-    }
-
-    private void KillPlayer()
-    {
-        currentHealth = 0;
-
-        if (regeneratingHealth != null)
-        {
-            StopCoroutine(regeneratingHealth);
-        }
-
-        // Tutaj co siê dziejê ze œmierci¹ po œmierci
-    }
-
     private void ApplyFinalMovements()
     {
-        if (!characterController.isGrounded) moveDirection.y -= gravity * Time.deltaTime;
+        if (!characterController.isGrounded)
+            moveDirection.y -= gravity * Time.deltaTime;
 
         if (WillSlideOnSlopes && IsSliding)
         {
             moveDirection = new Vector3(hitPointNormal.x, -hitPointNormal.y, hitPointNormal.z) * slopeSpeed;
         }
-
         characterController.Move(moveDirection * Time.deltaTime);
+    }
+
+    private void applyDamage(float damage)
+    {
+        currentHealth -= damage;
+        OnDamage?.Invoke(currentHealth);
+
+        if (currentHealth <= 0)
+            KillPlayer();
+        else
+        {
+            if (regeneratingHealth != null) StopCoroutine(regeneratingHealth);
+            regeneratingHealth = StartCoroutine(RegenerateHealth());
+        }
+    }
+
+    private void KillPlayer()
+    {
+        currentHealth = 0;
+        if (regeneratingHealth != null) StopCoroutine(regeneratingHealth);
+        // TODO: Add death behavior
     }
 
     private IEnumerator CrouchStand()
@@ -350,16 +307,18 @@ public class FirstPersonController : MonoBehaviour
             yield break;
 
         DuringCrouchAnimation = true;
-        float timeElapsed = 0;
+        float timeElapsed = 0f;
+        float startHeight = characterController.height;
+        Vector3 startCenter = characterController.center;
+
         float targetHeight = IsCrouching ? standingHeight : crouchHeight;
-        float currentHeight = characterController.height;
         Vector3 targetCenter = IsCrouching ? standingCenter : crouchingCenter;
-        Vector3 currentCenter = characterController.center;
 
         while (timeElapsed < timeToCrouch)
         {
-            characterController.height = Mathf.Lerp(currentHeight, targetHeight, timeElapsed / timeToCrouch);
-            characterController.center = Vector3.Lerp(currentCenter, targetCenter, timeElapsed / timeToCrouch);
+            float t = timeElapsed / timeToCrouch;
+            characterController.height = Mathf.Lerp(startHeight, targetHeight, t);
+            characterController.center = Vector3.Lerp(startCenter, targetCenter, t);
             timeElapsed += Time.deltaTime;
             yield return null;
         }
@@ -373,62 +332,39 @@ public class FirstPersonController : MonoBehaviour
     private IEnumerator RegenerateHealth()
     {
         yield return new WaitForSeconds(timeBeforeHealthRegenStarts);
-
-        WaitForSeconds timeToWait = new WaitForSeconds(healthTimeIncrement);
-
+        WaitForSeconds delay = new WaitForSeconds(healthTimeIncrement);
         while (currentHealth < maxHealth)
         {
-            currentHealth += healthValueIncrement;
-
-            if (currentHealth > maxHealth)
-            {
-                currentHealth = maxHealth;
-            }
-
+            currentHealth = Mathf.Min(currentHealth + healthValueIncrement, maxHealth);
             OnHeal?.Invoke(currentHealth);
-            yield return timeToWait;
+            yield return delay;
         }
-
         regeneratingHealth = null;
     }
 
     private IEnumerator RegenerateStamina()
     {
         yield return new WaitForSeconds(timeBeforeStaminaRegenStarts);
-
-        WaitForSeconds timeToWait = new WaitForSeconds(staminaTimeIncrement);
-
+        WaitForSeconds delay = new WaitForSeconds(staminaTimeIncrement);
         while (currentStamina < maxStamina)
         {
-            if (currentStamina > 0)
-            {
-                CanSprint = true;
-            }
-
-            currentStamina += staminaValueIncrement;
-
-            if (currentStamina > maxStamina)
-            {
-                currentStamina = maxStamina;
-            }
-
+            if (currentStamina > 0) CanSprint = true;
+            currentStamina = Mathf.Min(currentStamina + staminaValueIncrement, maxStamina);
             OnStaminaChange?.Invoke(currentStamina);
-
-            yield return timeToWait;
+            yield return delay;
         }
-
         regeneratingStamina = null;
     }
 
     private IEnumerator ToggleZoom(bool isEnter)
     {
+        float startFOV = playerCamera.fieldOfView;
         float targetFOV = isEnter ? zoomFOV : defaultFOV;
-        float startingFOV = playerCamera.fieldOfView;
-        float timeElapsed = 0;
+        float timeElapsed = 0f;
 
-        while(timeElapsed < timeToZoom)
+        while (timeElapsed < timeToZoom)
         {
-            playerCamera.fieldOfView = Mathf.Lerp(startingFOV, targetFOV, timeElapsed / timeToZoom);
+            playerCamera.fieldOfView = Mathf.Lerp(startFOV, targetFOV, timeElapsed / timeToZoom);
             timeElapsed += Time.deltaTime;
             yield return null;
         }
@@ -436,4 +372,14 @@ public class FirstPersonController : MonoBehaviour
         playerCamera.fieldOfView = targetFOV;
         zoomRoutine = null;
     }
+
+    private IEnumerator PlayBreathing()
+    {
+        yield return new WaitForSeconds(breathingDelay);
+        breathingAudioSource.PlayOneShot(breathingClip);
+    }
+
+    // Public getters
+    public float GetCurrentStamina() => currentStamina;
+    public float GetMaxStamina() => maxStamina;
 }
