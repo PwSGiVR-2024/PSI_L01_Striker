@@ -7,20 +7,20 @@ public class SanityManager : MonoBehaviour
     public static SanityManager instance { get; private set; }
 
     public ConnectionStatus _connectionStatus { get; private set; }
-    public int heartRate { get => spoofingEnabled ? _spoofHeartRate : _realHeartRate; }
+    public float heartRate { get => spoofingEnabled ? _spoofHeartRate : _realHeartRate; }
 
     //timeout
     public float signalTimeout = 5f;
     private float _lastPacketTime;
 
     //recived heart rate
-    private int _realHeartRate = 0;
+    private float _realHeartRate = 0;
 
     //spoof
     private SpoofMode _spoofMode = SpoofMode.Normal;
     private bool spoofingEnabled = false;
-    private int _spoofHeartRate = 90;
-    private int _spoofBaseRate = 90;
+    private float _spoofHeartRate = 90;
+    private float _spoofBaseRate = 90;
     private List<SpoofEvent> _spoofEvents = new List<SpoofEvent>();
     Coroutine _spoofRoutine;
 
@@ -56,7 +56,7 @@ public class SanityManager : MonoBehaviour
 
     /*--- HEART RATE ---*/
 
-    public void PushHeartRate(int bpm)
+    public void PushHeartRate(float bpm)
     {
         _realHeartRate = bpm;
         _lastPacketTime = Time.time;

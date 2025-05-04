@@ -49,6 +49,7 @@ function FinalScreen({ navigation }) {
     });
 
     WebSocketService.connect();
+    setIsTcpConnected(true);
 
     return () => {
       WebSocketService.disconnect();
