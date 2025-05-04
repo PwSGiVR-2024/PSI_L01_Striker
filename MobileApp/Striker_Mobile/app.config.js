@@ -1,4 +1,13 @@
 import 'dotenv/config';
+import { withAndroidManifest } from '@expo/config-plugins';
+
+const withCleartext = config => {
+  return withAndroidManifest(config, config => {
+    const app = config.modResults.manifest.application[0].$;
+    app['android:usesCleartextTraffic'] = 'true';
+    return config;
+  });
+};
 
 export default {
   expo: {
@@ -15,8 +24,15 @@ export default {
       backgroundColor: "#ffffff"
     },
     plugins: [
-        'expo-dev-client',
-        'expo-location',
+      'expo-dev-client',
+      'expo-location',
+      [
+        'expo-build-properties',
+        {
+          android: { enableCleartextTraffic: true }
+        }
+      ],
+      withCleartext
     ],
     assetBundlePatterns: [
       "**/*"
