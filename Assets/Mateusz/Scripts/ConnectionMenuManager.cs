@@ -48,7 +48,7 @@ public class ConnectionMenuManager : MonoBehaviour
         connectedPanel.SetActive(true);
 
         //game screen --->
-        StartCoroutine(DelayedLoad("TestScene", 5f));
+        StartCoroutine(DelayedLoad("Main Scene", 5f));
     }
 
 
@@ -58,7 +58,7 @@ public class ConnectionMenuManager : MonoBehaviour
         SanityManager.instance.EnableSpoof(SpoofMode.Normal);
 
         //----> game screen
-        SceneManager.LoadScene("TestScene");
+        SceneManager.LoadScene("Main Scene");
     }
 
 

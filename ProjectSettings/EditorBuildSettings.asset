@@ -6,6 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Mateusz/ConnectionMenu.unity
+    guid: b8454406a6692be419fe8539cee28e84
+  - enabled: 1
+    path: "Assets/Micha\u0142/Scenes/MainMenu.unity"
+    guid: 8e6a1a8d67851d9449094a951fac11d7
+  - enabled: 1
     path: Assets/Konrad/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
@@ -21,9 +27,6 @@ EditorBuildSettings:
     path: "Assets/Micha\u0142/Scenes/Overlays/Settings.unity"
     guid: 767e1d1d248283141a42c9c6a59b8fdb
   - enabled: 1
-    path: "Assets/Micha\u0142/Scenes/MainMenu.unity"
-    guid: 8e6a1a8d67851d9449094a951fac11d7
-  - enabled: 1
     path: "Assets/Micha\u0142/Scenes/Overlays/Audio.unity"
     guid: 32eb9869bd48a2c45a460b226f4bd178
   - enabled: 1
@@ -35,9 +38,6 @@ EditorBuildSettings:
   - enabled: 1
     path: "Assets/Micha\u0142/Scenes/Overlays/CustomDif.unity"
     guid: 7641b5800ab0e3b4eb15182ce625b80f
-  - enabled: 1
-    path: Assets/Mateusz/ConnectionMenu.unity
-    guid: b8454406a6692be419fe8539cee28e84
   - enabled: 1
     path: Assets/Mateusz/TestScene.unity
     guid: 942dc2cbf6aed5f42aad06f765fd51d7
