@@ -10,6 +10,8 @@ public class WebsocketConnector : MonoBehaviour
     WebSocketServer server;
     List<IWebSocketConnection> allSockets = new List<IWebSocketConnection>();
 
+    public bool DeviceConnected { get; private set; } = false;
+
     private readonly Queue<HeartRateData> _incoming = new Queue<HeartRateData>();
     private readonly object _lock = new object();
 
@@ -33,6 +35,7 @@ public class WebsocketConnector : MonoBehaviour
             {
                 Debug.Log("connected --> " + socket.ConnectionInfo.ClientIpAddress);
                 allSockets.Add(socket);
+                DeviceConnected = true;
             };
             socket.OnClose = () =>
             {
@@ -66,6 +69,7 @@ public class WebsocketConnector : MonoBehaviour
             hr = _incoming.Dequeue();
         }
 
+        Debug.Log("HR ---> " + hr.heartRate);
         SanityManager.instance.PushHeartRate(hr.heartRate);
     }
 
