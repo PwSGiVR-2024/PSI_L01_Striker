@@ -152,8 +152,8 @@ public class FirstPersonController : MonoBehaviour
         currentHealth = maxHealth;
         currentStamina = maxStamina;
 
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        //Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.visible = false;
     }
 
     private void Update()

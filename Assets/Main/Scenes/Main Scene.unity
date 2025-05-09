@@ -431,7 +431,7 @@ GameObject:
   - component: {fileID: 710610480}
   - component: {fileID: 710610479}
   m_Layer: 0
-  m_Name: CinemachineCamera
+  m_Name: MainMenuCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -489,11 +489,11 @@ Transform:
   m_GameObject: {fileID: 710610478}
   serializedVersion: 2
   m_LocalRotation: {x: -0.10300822, y: 0.0029804031, z: 0.000297436, w: 0.99467605}
-  m_LocalPosition: {x: -246.13686, y: 22.496508, z: 229.40514}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -124.2569, y: -475.34924, z: -2070.4863}
+  m_LocalScale: {x: 100, y: 100, z: 100}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1453509253}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &772974905
 GameObject:
@@ -573,11 +573,23 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 772974908}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1453509254}
+        m_TargetAssemblyTypeName: MainMenuHandler, Assembly-CSharp
+        m_MethodName: OnQuitButtonPressed
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &772974908
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5648,6 +5660,11 @@ MonoBehaviour:
       BarrelClipping: 0.25
       Anamorphism: 0
   BlendHint: 0
+--- !u!1 &1125023238 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6099447197789198817, guid: e7fd64c3ce28de245840c63de0fe7527, type: 3}
+  m_PrefabInstance: {fileID: 1525689491}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1191134423
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6229,6 +6246,7 @@ GameObject:
   - component: {fileID: 1453509252}
   - component: {fileID: 1453509251}
   - component: {fileID: 1453509250}
+  - component: {fileID: 1453509254}
   m_Layer: 5
   m_Name: MainMenu
   m_TagString: Untagged
@@ -6315,6 +6333,7 @@ RectTransform:
   - {fileID: 1637688853}
   - {fileID: 772974906}
   - {fileID: 1625156990}
+  - {fileID: 710610480}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -6322,6 +6341,23 @@ RectTransform:
   m_AnchoredPosition: {x: -244.89429, y: 27.25}
   m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1453509254
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1453509249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6aae8d6ad7b70d64eb97ae380d583526, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  overlay: {fileID: 1125023238}
+  canvas: {fileID: 1453509249}
+  mainMenuCamera: {fileID: 710610479}
+  playerCamera: {fileID: 1120455528}
+  environmentLight: {fileID: 2024403466}
 --- !u!1 &1481930973
 GameObject:
   m_ObjectHideFlags: 0
@@ -7067,7 +7103,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1647716908}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1453509254}
+        m_TargetAssemblyTypeName: MainMenuHandler, Assembly-CSharp
+        m_MethodName: OnPlayButtonPressed
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1647716908
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8031,6 +8079,5 @@ SceneRoots:
   - {fileID: 2133507119}
   - {fileID: 1525689491}
   - {fileID: 2024403467}
-  - {fileID: 710610480}
   - {fileID: 1492954541}
   - {fileID: 1453509253}

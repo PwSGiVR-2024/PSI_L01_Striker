@@ -4,7 +4,8 @@ using Unity.Cinemachine;
 public class MainMenuHandler : MonoBehaviour
 {
     [Header("UI Elements")]
-    [SerializeField] private GameObject overlay; // Overlay UI element
+    [SerializeField] private GameObject overlay; // Overlay UI element (e.g., for player controls)
+    [SerializeField] private GameObject canvas; // Main menu canvas
 
     [Header("Cameras")]
     [SerializeField] private CinemachineCamera mainMenuCamera; // Main menu camera
@@ -30,11 +31,19 @@ public class MainMenuHandler : MonoBehaviour
             overlay.SetActive(false);
         }
 
+        // Ensure the canvas is active at the start
+        if (canvas != null)
+        {
+            canvas.SetActive(true);
+        }
+
         // Freeze player controls and show the mouse cursor
         if (playerController != null)
         {
             playerController.CanMove = false;
         }
+
+        // Make the cursor visible and unlocked
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
@@ -67,18 +76,26 @@ public class MainMenuHandler : MonoBehaviour
             environmentLight.enabled = false;
         }
 
-        // Enable player controls and lock the cursor
+        // Enable player controls
         if (playerController != null)
         {
             playerController.CanMove = true;
         }
+
+        // Lock and hide the cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // Hide the overlay
+        // Show the overlay
         if (overlay != null)
         {
-            overlay.SetActive(false);
+            overlay.SetActive(true);
+        }
+
+        // Hide the canvas
+        if (canvas != null)
+        {
+            canvas.SetActive(false);
         }
     }
 
