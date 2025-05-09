@@ -5,7 +5,7 @@ using UnityEngine;
 public class FirstPersonController : MonoBehaviour
 {
     // Movement flags and state
-    public bool CanMove { get; private set; } = true;
+    public bool CanMove { get; set; } = true;
     private bool IsCrouching;
     private bool DuringCrouchAnimation;
     private bool wasSprinting = false;
