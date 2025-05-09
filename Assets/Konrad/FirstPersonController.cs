@@ -6,36 +6,36 @@ public class FirstPersonController : MonoBehaviour
 {
     // Movement flags and state
     public bool CanMove { get; set; } = true;
-    private bool IsCrouching;
-    private bool DuringCrouchAnimation;
-    private bool wasSprinting = false;
+    protected bool IsCrouching;
+    protected bool DuringCrouchAnimation;
+    protected bool wasSprinting = false;
 
     // Rotation and camera
-    private float rotationX;
-    private float defaultYPosition;
-    private float defaultFOV;
-    private Camera playerCamera;
+    protected float rotationX;
+    protected float defaultYPosition;
+    protected float defaultFOV;
+    protected Camera playerCamera;
 
     // Health and stamina
-    private float currentHealth;
-    private float currentStamina;
-    private Coroutine regeneratingHealth;
-    private Coroutine regeneratingStamina;
+    protected float currentHealth;
+    protected float currentStamina;
+    protected Coroutine regeneratingHealth;
+    protected Coroutine regeneratingStamina;
 
     // Movement calculation
-    private Vector3 moveDirection;
-    private Vector2 currentInput;
-    private Vector3 hitPointNormal;
+    protected Vector3 moveDirection;
+    protected Vector2 currentInput;
+    protected Vector3 hitPointNormal;
 
     // Timers
-    private float timer;
-    private float footstepTimer;
+    protected float timer;
+    protected float footstepTimer;
 
     // Zoom coroutine
-    private Coroutine zoomRoutine;
+    protected Coroutine zoomRoutine;
 
     // Character controller
-    private CharacterController characterController;
+    protected CharacterController characterController;
 
     // Event actions
     public static Action<float> OnTakeDamage;
@@ -44,15 +44,15 @@ public class FirstPersonController : MonoBehaviour
     public static Action<float> OnStaminaChange;
 
     // Input checks
-    private bool IsSprinting => CanSprint && Input.GetKey(sprintKey);
-    private bool ShouldJump => CanJump && Input.GetKeyDown(jumpKey) && characterController.isGrounded;
-    private bool ShouldCrouch => CanCrouch && Input.GetKeyDown(crouchKey) && !DuringCrouchAnimation && characterController.isGrounded;
-    private bool IsSliding => characterController.isGrounded
+    protected bool IsSprinting => CanSprint && Input.GetKey(sprintKey);
+    protected bool ShouldJump => CanJump && Input.GetKeyDown(jumpKey) && characterController.isGrounded;
+    protected bool ShouldCrouch => CanCrouch && Input.GetKeyDown(crouchKey) && !DuringCrouchAnimation && characterController.isGrounded;
+    protected bool IsSliding => characterController.isGrounded
                               && Physics.Raycast(transform.position, Vector3.down, out RaycastHit slopeHit, 2f)
                               && Vector3.Angle((hitPointNormal = slopeHit.normal), Vector3.up) > characterController.slopeLimit;
 
     // Footstep timing multiplier based on state
-    private float CurrentOffset
+    protected float CurrentOffset
     {
         get
         {
@@ -63,80 +63,80 @@ public class FirstPersonController : MonoBehaviour
     }
 
     [Header("Functional Options")]
-    [SerializeField] private bool CanSprint = true;
-    [SerializeField] private bool CanJump = true;
-    [SerializeField] private bool CanCrouch = true;
-    [SerializeField] private bool CanUseHeadbob = true;
-    [SerializeField] private bool WillSlideOnSlopes = true;
-    [SerializeField] private bool UseStamina = true;
-    [SerializeField] private bool canZoom = true;
-    [SerializeField] private bool useFootsteps = true;
+    [SerializeField] protected bool CanSprint = true;
+    [SerializeField] protected bool CanJump = true;
+    [SerializeField] protected bool CanCrouch = true;
+    [SerializeField] protected bool CanUseHeadbob = true;
+    [SerializeField] protected bool WillSlideOnSlopes = true;
+    [SerializeField] protected bool UseStamina = true;
+    [SerializeField] protected bool canZoom = true;
+    [SerializeField] protected bool useFootsteps = true;
 
     [Header("Controls")]
-    [SerializeField] private KeyCode sprintKey = KeyCode.LeftShift;
-    [SerializeField] private KeyCode jumpKey = KeyCode.Space;
-    [SerializeField] private KeyCode crouchKey = KeyCode.LeftControl;
-    [SerializeField] private KeyCode zoomKey = KeyCode.Mouse1;
+    [SerializeField] protected KeyCode sprintKey = KeyCode.LeftShift;
+    [SerializeField] protected KeyCode jumpKey = KeyCode.Space;
+    [SerializeField] protected KeyCode crouchKey = KeyCode.LeftControl;
+    [SerializeField] protected KeyCode zoomKey = KeyCode.Mouse1;
 
     [Header("Movement Parameters")]
-    [SerializeField] private float walkSpeed = 4.0f;
-    [SerializeField] private float sprintSpeed = 6.0f;
-    [SerializeField] private float crouchSpeed = 2.0f;
-    [SerializeField] private float slopeSpeed = 6.0f;
+    [SerializeField] protected float walkSpeed = 4.0f;
+    [SerializeField] protected float sprintSpeed = 6.0f;
+    [SerializeField] protected float crouchSpeed = 2.0f;
+    [SerializeField] protected float slopeSpeed = 6.0f;
 
     [Header("Look Parameters")]
-    [SerializeField, Range(1, 10)] private float lookSpeedX = 2.0f;
-    [SerializeField, Range(1, 10)] private float lookSpeedY = 2.0f;
-    [SerializeField, Range(1, 180)] private float upperLookLimit = 80.0f;
-    [SerializeField, Range(1, 180)] private float lowerLookLimit = 80.0f;
+    [SerializeField, Range(1, 10)] protected float lookSpeedX = 2.0f;
+    [SerializeField, Range(1, 10)] protected float lookSpeedY = 2.0f;
+    [SerializeField, Range(1, 180)] protected float upperLookLimit = 80.0f;
+    [SerializeField, Range(1, 180)] protected float lowerLookLimit = 80.0f;
 
     [Header("Health Parameters")]
-    [SerializeField] private float maxHealth = 100.0f;
-    [SerializeField] private float timeBeforeHealthRegenStarts = 20.0f;
-    [SerializeField] private float healthValueIncrement = 0.5f;
-    [SerializeField] private float healthTimeIncrement = 3.0f;
+    [SerializeField] protected float maxHealth = 100.0f;
+    [SerializeField] protected float timeBeforeHealthRegenStarts = 20.0f;
+    [SerializeField] protected float healthValueIncrement = 0.5f;
+    [SerializeField] protected float healthTimeIncrement = 3.0f;
 
     [Header("Stamina Parameters")]
-    [SerializeField] private float maxStamina = 100.0f;
-    [SerializeField] private float staminaUseMultiplier = 10.0f;
-    [SerializeField] private float timeBeforeStaminaRegenStarts = 2.0f;
-    [SerializeField] private float staminaValueIncrement = 1.0f;
-    [SerializeField] private float staminaTimeIncrement = 0.02f;
+    [SerializeField] protected float maxStamina = 100.0f;
+    [SerializeField] protected float staminaUseMultiplier = 10.0f;
+    [SerializeField] protected float timeBeforeStaminaRegenStarts = 2.0f;
+    [SerializeField] protected float staminaValueIncrement = 1.0f;
+    [SerializeField] protected float staminaTimeIncrement = 0.02f;
 
     [Header("Jumping Parameters")]
-    [SerializeField] private float jumpForce = 8.0f;
-    [SerializeField] private float gravity = 30.0f;
+    [SerializeField] protected float jumpForce = 8.0f;
+    [SerializeField] protected float gravity = 30.0f;
 
     [Header("Crouch Parameters")]
-    [SerializeField] private float crouchHeight = 0.5f;
-    [SerializeField] private float standingHeight = 2.0f;
-    [SerializeField] private float timeToCrouch = 0.25f;
-    [SerializeField] private Vector3 crouchingCenter = new Vector3(0, 0.5f, 0);
-    [SerializeField] private Vector3 standingCenter = new Vector3(0, 0, 0);
+    [SerializeField] protected float crouchHeight = 0.5f;
+    [SerializeField] protected float standingHeight = 2.0f;
+    [SerializeField] protected float timeToCrouch = 0.25f;
+    [SerializeField] protected Vector3 crouchingCenter = new Vector3(0, 0.5f, 0);
+    [SerializeField] protected Vector3 standingCenter = new Vector3(0, 0, 0);
 
     [Header("Headbob Parameters")]
-    [SerializeField] private float walkBobSpeed = 10.0f;
-    [SerializeField] private float walkBobAmount = 0.05f;
-    [SerializeField] private float sprintBobSpeed = 14.0f;
-    [SerializeField] private float sprintBobAmount = 0.1f;
-    [SerializeField] private float crouchBobSpeed = 6.0f;
-    [SerializeField] private float crouchBobAmount = 0.025f;
+    [SerializeField] protected float walkBobSpeed = 10.0f;
+    [SerializeField] protected float walkBobAmount = 0.05f;
+    [SerializeField] protected float sprintBobSpeed = 14.0f;
+    [SerializeField] protected float sprintBobAmount = 0.1f;
+    [SerializeField] protected float crouchBobSpeed = 6.0f;
+    [SerializeField] protected float crouchBobAmount = 0.025f;
 
     [Header("Zoom Parameters")]
-    [SerializeField] private float timeToZoom = 0.3f;
-    [SerializeField] private float zoomFOV = 30.0f;
+    [SerializeField] protected float timeToZoom = 0.3f;
+    [SerializeField] protected float zoomFOV = 30.0f;
 
     [Header("Audio Effects Parameters")]
-    [SerializeField] private AudioClip breathingClip;
-    [SerializeField] private AudioSource breathingAudioSource;
-    [SerializeField] private float breathingDelay = 0.5f;
+    [SerializeField] protected AudioClip breathingClip;
+    [SerializeField] protected AudioSource breathingAudioSource;
+    [SerializeField] protected float breathingDelay = 0.5f;
 
     [Header("Footstep Parameters")]
-    [SerializeField] private float baseStepSpeed = 0.5f;
-    [SerializeField] private float crouchStepMultiplier = 1.5f;
-    [SerializeField] private float sprintStepMultiplier = 0.6f;
-    [SerializeField] private AudioSource footstepAudioSource;
-    [SerializeField] private AudioClip[] terrainClips;
+    [SerializeField] protected float baseStepSpeed = 0.5f;
+    [SerializeField] protected float crouchStepMultiplier = 1.5f;
+    [SerializeField] protected float sprintStepMultiplier = 0.6f;
+    [SerializeField] protected AudioSource footstepAudioSource;
+    [SerializeField] protected AudioClip[] terrainClips;
 
     private void OnEnable() => OnTakeDamage += applyDamage;
     private void OnDisable() => OnTakeDamage -= applyDamage;
@@ -151,9 +151,6 @@ public class FirstPersonController : MonoBehaviour
 
         currentHealth = maxHealth;
         currentStamina = maxStamina;
-
-        //Cursor.lockState = CursorLockMode.Locked;
-        //Cursor.visible = false;
     }
 
     private void Update()
@@ -190,6 +187,8 @@ public class FirstPersonController : MonoBehaviour
 
     private void HandleMouseLook()
     {
+        if (ConsoleHandler.IsConsoleActive) return;
+
         rotationX -= Input.GetAxis("Mouse Y") * lookSpeedY;
         rotationX = Mathf.Clamp(rotationX, -upperLookLimit, lowerLookLimit);
 
