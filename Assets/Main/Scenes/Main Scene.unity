@@ -1051,11 +1051,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSource: {fileID: 1239054162}
-  defaultHoverSound: {fileID: 8300000, guid: 639aafaad53a8984b9f0660f816848ce, type: 3}
+  defaultHoverSound: {fileID: 8300000, guid: eada732be062d3741a429bc1ee5f32cc, type: 3}
   defaultClickSound: {fileID: 8300000, guid: 7ae4506a1302492478379eb950928c79, type: 3}
   buttonSoundConfigs:
   - button: {fileID: 1156027087}
-    hoverSound: {fileID: 8300000, guid: 639aafaad53a8984b9f0660f816848ce, type: 3}
+    hoverSound: {fileID: 8300000, guid: eada732be062d3741a429bc1ee5f32cc, type: 3}
     clickSound: {fileID: 8300000, guid: 7ae4506a1302492478379eb950928c79, type: 3}
 --- !u!114 &759454100
 MonoBehaviour:
@@ -7421,17 +7421,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSource: {fileID: 1239054162}
-  defaultHoverSound: {fileID: 8300000, guid: 639aafaad53a8984b9f0660f816848ce, type: 3}
+  defaultHoverSound: {fileID: 8300000, guid: eada732be062d3741a429bc1ee5f32cc, type: 3}
   defaultClickSound: {fileID: 8300000, guid: 7ae4506a1302492478379eb950928c79, type: 3}
   buttonSoundConfigs:
   - button: {fileID: 1647716907}
-    hoverSound: {fileID: 8300000, guid: 639aafaad53a8984b9f0660f816848ce, type: 3}
+    hoverSound: {fileID: 8300000, guid: eada732be062d3741a429bc1ee5f32cc, type: 3}
     clickSound: {fileID: 8300000, guid: 3132443c5e88256439201104d6a4dd7a, type: 3}
   - button: {fileID: 1637688854}
-    hoverSound: {fileID: 8300000, guid: 639aafaad53a8984b9f0660f816848ce, type: 3}
+    hoverSound: {fileID: 8300000, guid: eada732be062d3741a429bc1ee5f32cc, type: 3}
     clickSound: {fileID: 8300000, guid: 7ae4506a1302492478379eb950928c79, type: 3}
   - button: {fileID: 772974907}
-    hoverSound: {fileID: 8300000, guid: 639aafaad53a8984b9f0660f816848ce, type: 3}
+    hoverSound: {fileID: 8300000, guid: eada732be062d3741a429bc1ee5f32cc, type: 3}
     clickSound: {fileID: 8300000, guid: 7ae4506a1302492478379eb950928c79, type: 3}
 --- !u!1 &1481930973
 GameObject:

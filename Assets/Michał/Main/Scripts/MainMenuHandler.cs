@@ -5,14 +5,14 @@ public class MainMenuHandler : MonoBehaviour
 {
     [SerializeField] private CinemachineCamera mainMenuCamera;
     [SerializeField] private CinemachineCamera settingsCamera;
-    [SerializeField] private CinemachineCamera achievmentCamera; // Not currently used
+    [SerializeField] private CinemachineCamera achievmentCamera;
     [SerializeField] private CinemachineCamera playerCamera;
 
-    [SerializeField] private Light environmentLight; // Turned off when entering the game
+    [SerializeField] private Light environmentLight;
 
-    [SerializeField] private GameObject mainMenuCanvas; 
-    [SerializeField] private GameObject settingsCanvas; 
-    [SerializeField] private GameObject overlayCanvas; 
+    [SerializeField] private GameObject mainMenuCanvas;
+    [SerializeField] private GameObject settingsCanvas;
+    [SerializeField] private GameObject overlayCanvas; // Gameplay UI
 
     private FirstPersonController playerController;
 
@@ -31,10 +31,9 @@ public class MainMenuHandler : MonoBehaviour
         settingsCamera.Priority = 0;
         achievmentCamera.Priority = 0;
 
-        // Disable gameplay canvas on start
         if (overlayCanvas != null)
         {
-            overlayCanvas.SetActive(false);
+            overlayCanvas.SetActive(false); // Ensure overlay is hidden on start
         }
     }
 
@@ -45,7 +44,7 @@ public class MainMenuHandler : MonoBehaviour
 
         if (environmentLight != null)
         {
-            environmentLight.enabled = false; // Disable light for gameplay
+            environmentLight.enabled = false; // Turn off menu lighting
         }
 
         if (playerController != null)
@@ -56,7 +55,6 @@ public class MainMenuHandler : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // Deactivate menu and settings canvases
         if (mainMenuCanvas != null)
         {
             mainMenuCanvas.SetActive(false);
@@ -65,11 +63,9 @@ public class MainMenuHandler : MonoBehaviour
         {
             settingsCanvas.SetActive(false);
         }
-
-        // Activate gameplay canvas
         if (overlayCanvas != null)
         {
-            overlayCanvas.SetActive(true);
+            overlayCanvas.SetActive(true); // Show overlay on play
         }
     }
 
@@ -83,6 +79,13 @@ public class MainMenuHandler : MonoBehaviour
     {
         mainMenuCamera.Priority = 0;
         achievmentCamera.Priority = 10;
+    }
+
+    public void OnBackToMainMenuPressed()
+    {
+        settingsCamera.Priority = 0;
+        achievmentCamera.Priority = 0;
+        mainMenuCamera.Priority = 10;
     }
 
     public void OnQuitButtonPressed()
