@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Cinemachine;
+using System.Collections;
 
 public class MainMenuHandler : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class MainMenuHandler : MonoBehaviour
     [SerializeField] private GameObject mainMenuCanvas;
     [SerializeField] private GameObject settingsCanvas;
     [SerializeField] private GameObject overlayCanvas; // Gameplay UI
+    [SerializeField] private CanvasGroup overlayCanvasGroup;
 
     private FirstPersonController playerController;
 
@@ -29,11 +31,18 @@ public class MainMenuHandler : MonoBehaviour
 
         mainMenuCamera.Priority = 10;
         settingsCamera.Priority = 0;
-        achievmentCamera.Priority = 0;
-
+        //achievmentCamera.Priority = 0;
+        
+        if (overlayCanvasGroup != null)
+        {
+            overlayCanvasGroup.alpha = 0;
+            overlayCanvasGroup.interactable = false;
+            overlayCanvasGroup.blocksRaycasts = false;
+        }
+        
         if (overlayCanvas != null)
         {
-            overlayCanvas.SetActive(false); // Ensure overlay is hidden on start
+            overlayCanvas.SetActive(false);
         }
     }
 
@@ -44,7 +53,7 @@ public class MainMenuHandler : MonoBehaviour
 
         if (environmentLight != null)
         {
-            environmentLight.enabled = false; // Turn off menu lighting
+            environmentLight.enabled = false;
         }
 
         if (playerController != null)
@@ -55,6 +64,18 @@ public class MainMenuHandler : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
+        if (overlayCanvas != null)
+        {
+            overlayCanvas.SetActive(true);
+        }
+
+        StartCoroutine(HandlePlayTransition());
+    }
+
+    private IEnumerator HandlePlayTransition()
+    {
+        yield return StartCoroutine(FadeInOverlay());
+
         if (mainMenuCanvas != null)
         {
             mainMenuCanvas.SetActive(false);
@@ -63,10 +84,24 @@ public class MainMenuHandler : MonoBehaviour
         {
             settingsCanvas.SetActive(false);
         }
-        if (overlayCanvas != null)
+    }
+
+    private IEnumerator FadeInOverlay()
+    {
+        float duration = 3.0f;
+        float elapsedTime = 0f;
+
+        overlayCanvasGroup.interactable = true;
+        overlayCanvasGroup.blocksRaycasts = true;
+
+        while (elapsedTime < duration)
         {
-            overlayCanvas.SetActive(true); // Show overlay on play
+            overlayCanvasGroup.alpha = Mathf.Lerp(0, 1, elapsedTime / duration);
+            elapsedTime += Time.deltaTime;
+            yield return null;
         }
+
+        overlayCanvasGroup.alpha = 1;
     }
 
     public void OnSettingsButtonPressed()

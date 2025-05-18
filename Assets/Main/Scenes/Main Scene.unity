@@ -6504,6 +6504,18 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6099447197789198817, guid: e7fd64c3ce28de245840c63de0fe7527, type: 3}
   m_PrefabInstance: {fileID: 1525689491}
   m_PrefabAsset: {fileID: 0}
+--- !u!225 &1125023243
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1125023238}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1156027086
 GameObject:
   m_ObjectHideFlags: 0
@@ -7408,6 +7420,7 @@ MonoBehaviour:
   mainMenuCanvas: {fileID: 1453509249}
   settingsCanvas: {fileID: 759454097}
   overlayCanvas: {fileID: 1125023238}
+  overlayCanvasGroup: {fileID: 1125023243}
 --- !u!114 &1453509255
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7904,6 +7917,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: HR_OVERLAY
       objectReference: {fileID: 0}
+    - target: {fileID: 6099447197789198817, guid: e7fd64c3ce28de245840c63de0fe7527, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8853960865845113436, guid: e7fd64c3ce28de245840c63de0fe7527, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -7987,7 +8004,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6099447197789198817, guid: e7fd64c3ce28de245840c63de0fe7527, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1125023243}
   m_SourcePrefab: {fileID: 100100000, guid: e7fd64c3ce28de245840c63de0fe7527, type: 3}
 --- !u!1001 &1544940205
 PrefabInstance:
