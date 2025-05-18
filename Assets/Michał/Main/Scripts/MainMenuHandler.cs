@@ -3,105 +3,90 @@ using Unity.Cinemachine;
 
 public class MainMenuHandler : MonoBehaviour
 {
-    [Header("UI Elements")]
-    [SerializeField] private GameObject overlay; // Overlay UI element (e.g., for player controls)
-    [SerializeField] private GameObject canvas; // Main menu canvas
+    [SerializeField] private CinemachineCamera mainMenuCamera;
+    [SerializeField] private CinemachineCamera settingsCamera;
+    [SerializeField] private CinemachineCamera achievmentCamera; // Not currently used
+    [SerializeField] private CinemachineCamera playerCamera;
 
-    [Header("Cameras")]
-    [SerializeField] private CinemachineCamera mainMenuCamera; // Main menu camera
-    [SerializeField] private CinemachineCamera playerCamera; // Player camera
+    [SerializeField] private Light environmentLight; // Turned off when entering the game
 
-    [Header("Environment")]
-    [SerializeField] private Light environmentLight; // Environment light in the scene
+    [SerializeField] private GameObject mainMenuCanvas; 
+    [SerializeField] private GameObject settingsCanvas; 
+    [SerializeField] private GameObject overlayCanvas; 
 
-    private FirstPersonController playerController; // Reference to the player controller
+    private FirstPersonController playerController;
 
     private void Awake()
     {
-        // Find the player controller dynamically
         playerController = FindObjectOfType<FirstPersonController>();
-        if (playerController == null)
-        {
-            Debug.LogError("FirstPersonController not found in the scene.");
-        }
-
-        // Disable the overlay at the start
-        if (overlay != null)
-        {
-            overlay.SetActive(false);
-        }
-
-        // Ensure the canvas is active at the start
-        if (canvas != null)
-        {
-            canvas.SetActive(true);
-        }
-
-        // Freeze player controls and show the mouse cursor
         if (playerController != null)
         {
             playerController.CanMove = false;
         }
 
-        // Make the cursor visible and unlocked
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        // Ensure the main menu camera is active
-        if (mainMenuCamera != null)
+        mainMenuCamera.Priority = 10;
+        settingsCamera.Priority = 0;
+        achievmentCamera.Priority = 0;
+
+        // Disable gameplay canvas on start
+        if (overlayCanvas != null)
         {
-            mainMenuCamera.Priority = 10; // Higher priority for main menu camera
-        }
-        if (playerCamera != null)
-        {
-            playerCamera.Priority = 0; // Lower priority for player camera
+            overlayCanvas.SetActive(false);
         }
     }
 
     public void OnPlayButtonPressed()
     {
-        // Switch camera priority
-        if (mainMenuCamera != null)
-        {
-            mainMenuCamera.Priority = 0; // Lower priority for main menu camera
-        }
-        if (playerCamera != null)
-        {
-            playerCamera.Priority = 10; // Higher priority for player camera
-        }
+        mainMenuCamera.Priority = 0;
+        playerCamera.Priority = 10;
 
-        // Disable the environment light
         if (environmentLight != null)
         {
-            environmentLight.enabled = false;
+            environmentLight.enabled = false; // Disable light for gameplay
         }
 
-        // Enable player controls
         if (playerController != null)
         {
             playerController.CanMove = true;
         }
 
-        // Lock and hide the cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // Show the overlay
-        if (overlay != null)
+        // Deactivate menu and settings canvases
+        if (mainMenuCanvas != null)
         {
-            overlay.SetActive(true);
+            mainMenuCanvas.SetActive(false);
+        }
+        if (settingsCanvas != null)
+        {
+            settingsCanvas.SetActive(false);
         }
 
-        // Hide the canvas
-        if (canvas != null)
+        // Activate gameplay canvas
+        if (overlayCanvas != null)
         {
-            canvas.SetActive(false);
+            overlayCanvas.SetActive(true);
         }
+    }
+
+    public void OnSettingsButtonPressed()
+    {
+        mainMenuCamera.Priority = 0;
+        settingsCamera.Priority = 10;
+    }
+
+    public void OnAchievementsButtonPressed()
+    {
+        mainMenuCamera.Priority = 0;
+        achievmentCamera.Priority = 10;
     }
 
     public void OnQuitButtonPressed()
     {
-        // Quit the application
         Application.Quit();
     }
 }
