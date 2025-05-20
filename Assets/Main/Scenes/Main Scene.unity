@@ -6450,7 +6450,7 @@ Transform:
   m_GameObject: {fileID: 1120455526}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6898,6 +6898,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 302716456e5231b4799387bb045a6cde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerCamera: {fileID: 1900385916}
+  cameraPivot: {fileID: 1120455527}
   CanSprint: 1
   CanJump: 1
   CanCrouch: 1
@@ -6995,7 +6997,6 @@ Transform:
   m_Children:
   - {fileID: 1481930974}
   - {fileID: 1120455527}
-  - {fileID: 1900385913}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &1239054162
@@ -7107,6 +7108,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98706eb32a2382a4d9f243d447ec45cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerCamera: {fileID: 0}
+  cameraPivot: {fileID: 0}
   CanSprint: 1
   CanJump: 1
   CanCrouch: 1
@@ -9466,12 +9469,12 @@ Transform:
   m_GameObject: {fileID: 1900385912}
   serializedVersion: 2
   m_LocalRotation: {x: -0.10300822, y: 0.0029804031, z: 0.000297436, w: 0.99467605}
-  m_LocalPosition: {x: -141.13686, y: 12.496508, z: 184.40514}
+  m_LocalPosition: {x: -246.13686, y: 22.496508, z: 229.40514}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1978606153}
-  m_Father: {fileID: 1239054161}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1900385914
 MonoBehaviour:
@@ -10130,3 +10133,4 @@ SceneRoots:
   - {fileID: 1453509253}
   - {fileID: 759454103}
   - {fileID: 1715539796}
+  - {fileID: 1900385913}
