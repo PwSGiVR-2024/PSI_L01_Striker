@@ -1,47 +1,59 @@
 using System;
 using System.Collections;
-using Unity.Cinemachine;
 using UnityEngine;
 using Unity.Cinemachine;
 
 public class FirstPersonController : MonoBehaviour
 {
+    // Movement flags and state
     public bool CanMove { get; set; } = true;
     protected bool IsCrouching;
     protected bool DuringCrouchAnimation;
     protected bool wasSprinting = false;
 
+    // Rotation and camera
     protected float rotationX;
     protected float defaultYPosition;
     protected float defaultFOV;
+<<<<<<< HEAD
 <<<<<<< HEAD
     protected CinemachineCamera playerCamera;
 =======
     [SerializeField] protected Camera playerCamera;
     [SerializeField] private Transform cameraPivot;
 >>>>>>> b99ce6de7a5c10575760ac0d43555ec4401b8d9a
+=======
+    protected Camera playerCamera;
+>>>>>>> 43baeaab936114be72c94cc0a87e6a608c6a0dbe
 
+    // Health and stamina
     protected float currentHealth;
     protected float currentStamina;
     protected Coroutine regeneratingHealth;
     protected Coroutine regeneratingStamina;
 
+    // Movement calculation
     protected Vector3 moveDirection;
     protected Vector2 currentInput;
     protected Vector3 hitPointNormal;
 
+    // Timers
     protected float timer;
     protected float footstepTimer;
 
+    // Zoom coroutine
     protected Coroutine zoomRoutine;
 
+    // Character controller
     protected CharacterController characterController;
 
+    // Event actions
     public static Action<float> OnTakeDamage;
     public static Action<float> OnDamage;
     public static Action<float> OnHeal;
     public static Action<float> OnStaminaChange;
 
+    // Input checks
     protected bool IsSprinting => CanSprint && Input.GetKey(sprintKey);
     protected bool ShouldJump => CanJump && Input.GetKeyDown(jumpKey) && characterController.isGrounded;
     protected bool ShouldCrouch => CanCrouch && Input.GetKeyDown(crouchKey) && !DuringCrouchAnimation && characterController.isGrounded;
@@ -49,6 +61,7 @@ public class FirstPersonController : MonoBehaviour
                               && Physics.Raycast(transform.position, Vector3.down, out RaycastHit slopeHit, 2f)
                               && Vector3.Angle((hitPointNormal = slopeHit.normal), Vector3.up) > characterController.slopeLimit;
 
+    // Footstep timing multiplier based on state
     protected float CurrentOffset
     {
         get
@@ -141,17 +154,26 @@ public class FirstPersonController : MonoBehaviour
     private void Awake()
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         playerCamera = GetComponentInChildren<CinemachineCamera>();
 =======
 >>>>>>> b99ce6de7a5c10575760ac0d43555ec4401b8d9a
+=======
+        playerCamera = GetComponentInChildren<Camera>();
+>>>>>>> 43baeaab936114be72c94cc0a87e6a608c6a0dbe
         characterController = GetComponent<CharacterController>();
+
         defaultYPosition = playerCamera.transform.localPosition.y;
 <<<<<<< HEAD
         defaultFOV = playerCamera.Lens.FieldOfView;
 
 =======
         defaultFOV = playerCamera.fieldOfView;
+<<<<<<< HEAD
 >>>>>>> b99ce6de7a5c10575760ac0d43555ec4401b8d9a
+=======
+
+>>>>>>> 43baeaab936114be72c94cc0a87e6a608c6a0dbe
         currentHealth = maxHealth;
         currentStamina = maxStamina;
     }
@@ -195,7 +217,7 @@ public class FirstPersonController : MonoBehaviour
         rotationX -= Input.GetAxis("Mouse Y") * lookSpeedY;
         rotationX = Mathf.Clamp(rotationX, -upperLookLimit, lowerLookLimit);
 
-        cameraPivot.localRotation = Quaternion.Euler(rotationX, 0, 0);
+        playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
         transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeedX, 0);
     }
 
@@ -300,6 +322,7 @@ public class FirstPersonController : MonoBehaviour
     {
         currentHealth = 0;
         if (regeneratingHealth != null) StopCoroutine(regeneratingHealth);
+        // TODO: Add death behavior
     }
 
     private IEnumerator CrouchStand()
@@ -380,6 +403,7 @@ public class FirstPersonController : MonoBehaviour
         breathingAudioSource.PlayOneShot(breathingClip);
     }
 
+    // Public getters
     public float GetCurrentStamina() => currentStamina;
     public float GetMaxStamina() => maxStamina;
 }
