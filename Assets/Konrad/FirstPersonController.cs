@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using Unity.Cinemachine;
 
 public class FirstPersonController : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class FirstPersonController : MonoBehaviour
     protected float rotationX;
     protected float defaultYPosition;
     protected float defaultFOV;
-    protected Camera playerCamera;
+    protected CinemachineCamera playerCamera;
 
     // Health and stamina
     protected float currentHealth;
@@ -143,11 +144,11 @@ public class FirstPersonController : MonoBehaviour
 
     private void Awake()
     {
-        playerCamera = GetComponentInChildren<Camera>();
+        playerCamera = GetComponentInChildren<CinemachineCamera>();
         characterController = GetComponent<CharacterController>();
 
         defaultYPosition = playerCamera.transform.localPosition.y;
-        defaultFOV = playerCamera.fieldOfView;
+        defaultFOV = playerCamera.Lens.FieldOfView;
 
         currentHealth = maxHealth;
         currentStamina = maxStamina;
@@ -357,18 +358,18 @@ public class FirstPersonController : MonoBehaviour
 
     private IEnumerator ToggleZoom(bool isEnter)
     {
-        float startFOV = playerCamera.fieldOfView;
+        float startFOV = playerCamera.Lens.FieldOfView;
         float targetFOV = isEnter ? zoomFOV : defaultFOV;
         float timeElapsed = 0f;
 
         while (timeElapsed < timeToZoom)
         {
-            playerCamera.fieldOfView = Mathf.Lerp(startFOV, targetFOV, timeElapsed / timeToZoom);
+            playerCamera.Lens.FieldOfView = Mathf.Lerp(startFOV, targetFOV, timeElapsed / timeToZoom);
             timeElapsed += Time.deltaTime;
             yield return null;
         }
 
-        playerCamera.fieldOfView = targetFOV;
+        playerCamera.Lens.FieldOfView = targetFOV;
         zoomRoutine = null;
     }
 
